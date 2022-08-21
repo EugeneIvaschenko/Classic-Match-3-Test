@@ -31,8 +31,12 @@ public class Game : MonoBehaviour {
     }
 
     private void DestroyMatchedTiles(List<Tile> tiles) {
-        //Increment score
+        if (Score.Instance) {
+            Score.Instance.AddScore(tiles.Count);
+        }
+
         //Do tile destroy animation
+
         DestroyTiles(tiles);
     }
 
