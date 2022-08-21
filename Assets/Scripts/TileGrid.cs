@@ -23,7 +23,6 @@ public class TileGrid : MonoBehaviour {
         grid[x, y] = tile;
         tile.x = x;
         tile.y = y;
-        tile.transform.localPosition = new(x, y);
     }
 
     public void CreateAndFillNewGrid() {
@@ -49,7 +48,7 @@ public class TileGrid : MonoBehaviour {
     }
 
     public void RefillGrid() {
-        List<List<Tile>> colsOfNew = new();
+        List<Transform[]> colsOfNew = new();
         List<Tile> oldTiles = new();
 
         for (int x = 0; x < width; x++) {
@@ -60,20 +59,17 @@ public class TileGrid : MonoBehaviour {
 
             colsOfNew.Add(RefillColumnAndGetNewTiles(x));
         }
-
-        //Do refilling animation
-
-        GridRefilled?.Invoke();
+        Match3Animation.FallTiles(oldTiles.ToArray(), colsOfNew.ToArray(), () => GridRefilled?.Invoke());
     }
 
-    private List<Tile> RefillColumnAndGetNewTiles(int x) {
-        List<Tile> newGems = new();
+    private Transform[] RefillColumnAndGetNewTiles(int x) {
+        List<Transform> newGems = new();
         for (int y = 0; y < height; y++) {
             if (grid[x, y])
                 continue;
             if(y == height - 1) {
                 CreateNewTile(x, y, ColorTable.Instance.GetColorKeys());
-                newGems.Add(grid[x, y]);
+                newGems.Add(grid[x, y].transform);
                 continue;
             }
             Tile tile = TakeHigherTile(x, y + 1);
@@ -81,10 +77,11 @@ public class TileGrid : MonoBehaviour {
                 SetTileTo(tile, x, y);
             } else {
                 CreateNewTile(x, y, ColorTable.Instance.GetColorKeys());
-                newGems.Add(grid[x, y]);
+                newGems.Add(grid[x, y].transform);
             }
         }
-        return newGems;
+        return newGems.ToArray();
+        ;
     }
 
     private Tile TakeHigherTile(int x, int y) {

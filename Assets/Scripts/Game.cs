@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Game : MonoBehaviour {
@@ -14,12 +15,9 @@ public class Game : MonoBehaviour {
         List<Tile> tiles = tileGrid.SearchMatchedTiles();
         if (tiles.Count < 3) {
             tileGrid.Swap(tile1, tile2);
-            Debug.Log("No have lines");
-            //Do fail swap animation
+            Match3Animation.FailSwapping(tile1.transform, tile2.transform);
         } else {
-            Debug.Log("Have lines");
-            DestroyMatchedTiles(tiles);
-            //Do swap tile animation
+            Match3Animation.SwapTiles(tile1.transform, tile2.transform, () => DestroyMatchedTiles(tiles));
         }
     }
 
@@ -34,10 +32,7 @@ public class Game : MonoBehaviour {
         if (Score.Instance) {
             Score.Instance.AddScore(tiles.Count);
         }
-
-        //Do tile destroy animation
-
-        DestroyTiles(tiles);
+        Match3Animation.DestroyTiles(tiles.Select(t => t.transform).ToArray(), () => DestroyTiles(tiles));
     }
 
     private void DestroyTiles(List<Tile> tiles) {
